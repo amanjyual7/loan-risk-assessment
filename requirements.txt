@@ -1,0 +1,14 @@
+# Runtime — what Streamlit Community Cloud installs.
+streamlit>=1.40
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+pydantic>=2.7
+PyYAML>=6.0
+joblib>=1.4
+reportlab>=4.2
+
+# Optional: per-applicant attribution for the boosted model. The logistic
+# baseline computes exact contributions without it, so the app degrades
+# gracefully if this is omitted to keep the deploy slim.
+shap>=0.45

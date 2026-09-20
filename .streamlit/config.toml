@@ -1,0 +1,11 @@
+[theme]
+base = "light"
+primaryColor = "#1b4f72"
+
+[server]
+# The app reads a committed SQLite artefact and a committed model. It makes
+# no outbound network calls at runtime by design.
+enableStaticServing = false
+
+[browser]
+gatherUsageStats = false

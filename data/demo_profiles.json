@@ -1,0 +1,127 @@
+{
+  "_note": "Entirely synthetic. No real applicant data appears in this repo. Names are invented.",
+  "profiles": [
+    {
+      "key": "clean_prime",
+      "label": "Clean prime borrower",
+      "blurb": "Salaried, long tenure, high bureau score, low obligations. The control case.",
+      "applicant": {
+        "identity": {"full_name": "Asha Raghavan", "age": 38, "pincode": "560001", "residence_type": "owned", "years_at_address": 7},
+        "household": {"dependent_children": 1, "dependent_adults": 0},
+        "employment": {"employment_type": "salaried", "employer_name": "Northline Systems", "industry": "IT services", "years_current_job": 6, "total_experience_years": 14},
+        "income": {"gross_monthly": 165000, "net_monthly": 132000, "income_source": "Salary", "income_varies": false, "other_household_income": 40000},
+        "loan": {"amount": 900000, "purpose": "education", "tenure_months": 84, "collateral_offered": "none"},
+        "bureau": {"score": 792, "score_date": "2026-09-01", "active_accounts": 3, "closed_accounts": 4, "enquiries_3m": 0, "enquiries_6m": 1, "enquiries_12m": 1},
+        "trade_lines": [
+          {"account_type": "credit card", "lender_type": "private bank", "sanctioned_amount": 400000, "current_outstanding": 42000, "emi": 0, "opened_date": "2016-04-10", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"},
+          {"account_type": "home", "lender_type": "private bank", "sanctioned_amount": 4200000, "current_outstanding": 2650000, "emi": 34000, "opened_date": "2019-06-01", "ownership": "joint", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"},
+          {"account_type": "auto", "lender_type": "NBFC", "sanctioned_amount": 700000, "current_outstanding": 0, "emi": 0, "opened_date": "2018-02-14", "closed_date": "2023-02-14", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"}
+        ],
+        "adverse": {},
+        "cash_flow": {"average_monthly_balance": 210000, "salary_credits_6m": 6, "bounced_debits_6m": 0},
+        "co_applicant": {"name": "Vikram Raghavan", "relationship": "spouse", "employment_type": "salaried", "net_monthly_income": 68000, "age": 40}
+      }
+    },
+    {
+      "key": "thin_file",
+      "label": "Thin file",
+      "blurb": "First-time borrower, no bureau history. Tests the fallback path and the band cap.",
+      "applicant": {
+        "identity": {"full_name": "Rohit Meher", "age": 23, "pincode": "751001", "residence_type": "parental", "years_at_address": 5},
+        "household": {"dependent_children": 0, "dependent_adults": 0},
+        "employment": {"employment_type": "salaried", "employer_name": "Kestrel Analytics", "industry": "BPO", "years_current_job": 1.2, "total_experience_years": 1.2},
+        "income": {"gross_monthly": 46000, "net_monthly": 39500, "income_source": "Salary", "income_varies": false, "other_household_income": 0},
+        "loan": {"amount": 350000, "purpose": "education", "tenure_months": 60, "collateral_offered": "none"},
+        "bureau": {"no_credit_history": true, "active_accounts": 0, "closed_accounts": 0, "enquiries_3m": 1, "enquiries_6m": 1, "enquiries_12m": 1},
+        "trade_lines": [],
+        "adverse": {},
+        "cash_flow": {"average_monthly_balance": 54000, "salary_credits_6m": 6, "bounced_debits_6m": 0},
+        "co_applicant": {"name": "Sunita Meher", "relationship": "mother", "employment_type": "salaried", "net_monthly_income": 52000, "age": 49}
+      }
+    },
+    {
+      "key": "high_foir_clean",
+      "label": "High FOIR, clean record",
+      "blurb": "Spotless repayment history, but a household of five on one income. This is the profile plain FOIR gets wrong.",
+      "applicant": {
+        "identity": {"full_name": "Imran Qureshi", "age": 44, "pincode": "400001", "residence_type": "rented", "years_at_address": 3},
+        "household": {"dependent_children": 2, "dependent_adults": 2},
+        "employment": {"employment_type": "salaried", "employer_name": "Harbour Freight Co", "industry": "logistics", "years_current_job": 9, "total_experience_years": 20},
+        "income": {"gross_monthly": 98000, "net_monthly": 81000, "income_source": "Salary", "income_varies": false, "other_household_income": 0},
+        "loan": {"amount": 1100000, "purpose": "education", "tenure_months": 96, "collateral_offered": "none"},
+        "bureau": {"score": 761, "score_date": "2026-08-20", "active_accounts": 4, "closed_accounts": 2, "enquiries_3m": 1, "enquiries_6m": 2, "enquiries_12m": 3},
+        "trade_lines": [
+          {"account_type": "credit card", "lender_type": "private bank", "sanctioned_amount": 250000, "current_outstanding": 96000, "emi": 0, "opened_date": "2014-11-05", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"},
+          {"account_type": "personal", "lender_type": "NBFC", "sanctioned_amount": 600000, "current_outstanding": 310000, "emi": 15500, "opened_date": "2023-01-20", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"},
+          {"account_type": "auto", "lender_type": "bank", "sanctioned_amount": 820000, "current_outstanding": 430000, "emi": 17200, "opened_date": "2022-07-11", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"}
+        ],
+        "adverse": {},
+        "cash_flow": {"average_monthly_balance": 38000, "salary_credits_6m": 6, "bounced_debits_6m": 0},
+        "co_applicant": null
+      }
+    },
+    {
+      "key": "recovering_delinquency",
+      "label": "Recovering delinquency",
+      "blurb": "Was 90+ DPD 18 months ago, current on everything now. Graded, not knocked out.",
+      "applicant": {
+        "identity": {"full_name": "Deepa Nair", "age": 35, "pincode": "641001", "residence_type": "rented", "years_at_address": 2},
+        "household": {"dependent_children": 1, "dependent_adults": 1},
+        "employment": {"employment_type": "self-employed", "employer_name": "Nair Textiles", "industry": "retail", "years_current_job": 5, "total_experience_years": 11},
+        "income": {"gross_monthly": 72000, "net_monthly": 64000, "income_source": "Business receipts", "income_varies": true, "other_household_income": 12000},
+        "loan": {"amount": 500000, "purpose": "education", "tenure_months": 72, "collateral_offered": "gold"},
+        "bureau": {"score": 664, "score_date": "2026-09-05", "active_accounts": 3, "closed_accounts": 1, "enquiries_3m": 1, "enquiries_6m": 2, "enquiries_12m": 4},
+        "trade_lines": [
+          {"account_type": "credit card", "lender_type": "private bank", "sanctioned_amount": 150000, "current_outstanding": 98000, "emi": 0, "opened_date": "2018-03-02", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 90, "status": "standard"},
+          {"account_type": "personal", "lender_type": "NBFC", "sanctioned_amount": 300000, "current_outstanding": 140000, "emi": 9800, "opened_date": "2021-09-15", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 60, "status": "standard"},
+          {"account_type": "gold", "lender_type": "NBFC", "sanctioned_amount": 200000, "current_outstanding": 120000, "emi": 6200, "opened_date": "2024-05-30", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"}
+        ],
+        "adverse": {"nach_bounces": 2},
+        "cash_flow": {"average_monthly_balance": 26000, "salary_credits_6m": 3, "bounced_debits_6m": 1},
+        "co_applicant": {"name": "Suresh Nair", "relationship": "spouse", "employment_type": "salaried", "net_monthly_income": 31000, "age": 38}
+      }
+    },
+    {
+      "key": "active_delinquency",
+      "label": "Active delinquency",
+      "blurb": "Live account 95 days past due and written off. Should hit a hard knockout, not a score.",
+      "applicant": {
+        "identity": {"full_name": "Manoj Prasad", "age": 41, "pincode": "800001", "residence_type": "rented", "years_at_address": 1.5},
+        "household": {"dependent_children": 3, "dependent_adults": 1},
+        "employment": {"employment_type": "business", "employer_name": "Prasad Traders", "industry": "wholesale", "years_current_job": 3, "total_experience_years": 15},
+        "income": {"gross_monthly": 58000, "net_monthly": 52000, "income_source": "Business receipts", "income_varies": true, "other_household_income": 0},
+        "loan": {"amount": 600000, "purpose": "education", "tenure_months": 60, "collateral_offered": "none"},
+        "bureau": {"score": 561, "score_date": "2026-09-10", "active_accounts": 4, "closed_accounts": 1, "enquiries_3m": 3, "enquiries_6m": 5, "enquiries_12m": 8},
+        "trade_lines": [
+          {"account_type": "credit card", "lender_type": "private bank", "sanctioned_amount": 120000, "current_outstanding": 131000, "emi": 0, "opened_date": "2019-01-08", "ownership": "individual", "current_dpd": 95, "worst_dpd_24m": 95, "status": "substandard"},
+          {"account_type": "personal", "lender_type": "NBFC", "sanctioned_amount": 250000, "current_outstanding": 198000, "emi": 8700, "opened_date": "2022-11-02", "ownership": "individual", "current_dpd": 45, "worst_dpd_24m": 120, "status": "written-off"},
+          {"account_type": "overdraft", "lender_type": "bank", "sanctioned_amount": 300000, "current_outstanding": 291000, "emi": 0, "opened_date": "2021-04-19", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 30, "status": "standard"}
+        ],
+        "adverse": {"write_offs": 1, "nach_bounces": 6, "cheque_bounces": 2},
+        "cash_flow": {"average_monthly_balance": 4200, "salary_credits_6m": 1, "bounced_debits_6m": 5},
+        "co_applicant": null
+      }
+    },
+    {
+      "key": "credit_hungry",
+      "label": "Credit hungry",
+      "blurb": "Many recent enquiries, low utilisation, nothing adverse yet. The pattern the enquiry-velocity rule exists for.",
+      "applicant": {
+        "identity": {"full_name": "Farah Sheikh", "age": 29, "pincode": "110001", "residence_type": "rented", "years_at_address": 1},
+        "household": {"dependent_children": 0, "dependent_adults": 1},
+        "employment": {"employment_type": "salaried", "employer_name": "Lattice Media", "industry": "advertising", "years_current_job": 0.8, "total_experience_years": 6},
+        "income": {"gross_monthly": 88000, "net_monthly": 74000, "income_source": "Salary", "income_varies": false, "other_household_income": 0},
+        "loan": {"amount": 750000, "purpose": "education", "tenure_months": 60, "collateral_offered": "none"},
+        "bureau": {"score": 708, "score_date": "2026-09-12", "active_accounts": 5, "closed_accounts": 0, "enquiries_3m": 6, "enquiries_6m": 9, "enquiries_12m": 13},
+        "trade_lines": [
+          {"account_type": "credit card", "lender_type": "private bank", "sanctioned_amount": 300000, "current_outstanding": 21000, "emi": 0, "opened_date": "2024-02-14", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"},
+          {"account_type": "credit card", "lender_type": "fintech", "sanctioned_amount": 150000, "current_outstanding": 9000, "emi": 0, "opened_date": "2025-08-01", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"},
+          {"account_type": "personal", "lender_type": "fintech", "sanctioned_amount": 120000, "current_outstanding": 84000, "emi": 5400, "opened_date": "2025-11-20", "ownership": "individual", "current_dpd": 0, "worst_dpd_24m": 0, "status": "standard"}
+        ],
+        "adverse": {},
+        "cash_flow": {"average_monthly_balance": 31000, "salary_credits_6m": 6, "bounced_debits_6m": 0},
+        "co_applicant": null
+      }
+    }
+  ]
+}

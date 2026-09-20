@@ -1,0 +1,27 @@
+# Raw training data is NEVER committed. Lending Club's accepted_*.csv is
+# ~1.5GB and redistributing it is not ours to do.
+data/raw/
+*.csv
+!data/*_sample.csv
+
+# Notebook scratch space: intermediate parquet, figures, standardisation stats.
+notebooks/_work/
+
+# The assessments database is local state, not source.
+data/assessments.sqlite
+
+# Committed artefacts — these ARE tracked, listed here so the intent is
+# explicit rather than accidental:
+#   data/pincode_reference.sqlite   (built from the Google Sheet)
+#   data/demo_profiles.json         (synthetic)
+#   models/pd_model.joblib          (trained offline)
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+.streamlit/secrets.toml

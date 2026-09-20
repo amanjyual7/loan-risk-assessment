@@ -1,0 +1,6 @@
+-r requirements.txt
+pytest>=8.0
+matplotlib>=3.8     # calibration and EDA plots in notebooks/
+pyarrow>=16.0       # parquet in the training pipeline
+jupytext>=1.16      # opens notebooks/*.py as notebooks
+ruff>=0.5

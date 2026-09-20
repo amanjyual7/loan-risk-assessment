@@ -1,0 +1,244 @@
+# ============================================================================
+# Loan Risk Assessment — single source of truth for every number in the app.
+# Nothing in engine/ or app/ may hard-code a threshold. If you need a number,
+# add it here and load it.
+#
+# Every assessment is stamped with config_version + model_version.
+# Bump config_version on ANY change to a value below.
+# ============================================================================
+config_version: "0.3.0"
+config_updated: "2026-09-19"
+
+# ----------------------------------------------------------------------------
+# Loan pricing assumption used to derive the proposed EMI.
+# The app does not price loans; it needs a rate to compute affordability.
+# Source: indicative unsecured education-loan rates from Indian PSU/private
+# lender websites, sampled 2026-09. Reasoned assumption, not a quote.
+# ----------------------------------------------------------------------------
+pricing:
+  assumed_annual_rate_pct: 12.5
+  min_tenure_months: 6
+  max_tenure_months: 180
+
+# ----------------------------------------------------------------------------
+# Household expense floor (INR / month).
+#
+# Base = cost of running a single adult household at that city tier.
+# Increments are marginal, not per-capita: a second adult in the same
+# household does not double rent, and a child costs less than an adult
+# except in schooling years, which the child increment is meant to absorb.
+#
+# Source: reasoned from MoSPI Household Consumption Expenditure Survey
+# 2023-24 per-capita monthly expenditure by urban class, uprated for
+# inflation to 2026 and rounded to a conservative floor. Recorded 2026-09-19.
+# These are NOT calibrated against observed Finz default data. Treat as a
+# floor for surplus arithmetic, not as a measured expense.
+# ----------------------------------------------------------------------------
+expenses:
+  base_single_adult_by_tier:
+    Metro: 21000
+    Tier 1: 16500
+    Tier 2: 12500
+    Tier 3: 9500
+  per_dependent_child: 5000
+  per_dependent_adult: 7000
+  # Applied when residence_type == "owned": no rent component in the floor.
+  owned_residence_discount_pct: 22
+
+# ----------------------------------------------------------------------------
+# Risk bands.
+#
+# Cutoffs are upper bounds on calibrated PD, exclusive. Band E is the tail.
+#
+# !! PLACEHOLDER VALUES !!
+# These are quantiles of the PLACEHOLDER scorecard's own PD distribution over
+# the synthetic reference grid, produced by:
+#     python notebooks/06_bands.py --from-reference-grid
+#
+# Why derive them at all for a placeholder: cutoffs and the model that
+# produces the PDs must come from the same distribution. Cutoffs guessed
+# against one distribution and applied to another do not partition anything,
+# and the visible symptom is most applicants collapsing into the worst band.
+#
+# observed_default_rate is null because a synthetic grid has no outcomes. The
+# bands are internally consistent, NOT meaningful. After training:
+#     python notebooks/06_bands.py --apply
+# which writes decile cutoffs from the held-out test set and fills in
+# observed_default_rate from that same set.
+# ----------------------------------------------------------------------------
+bands:
+  source: "PD deciles on the held-out test cohort (2014+), model logistic-synthetic-2026.09.1 — SYNTHETIC, see notebooks/00_synthetic_data.py"
+  definitions:
+    - band: "A"
+      label: "Low"
+      pd_upper: 0.0671
+      observed_default_rate: 0.0297
+    - band: "B"
+      label: "Moderate"
+      pd_upper: 0.1139
+      observed_default_rate: 0.0663
+    - band: "C"
+      label: "Elevated"
+      pd_upper: 0.1614
+      observed_default_rate: 0.1117
+    - band: "D"
+      label: "High"
+      pd_upper: 0.2851
+      observed_default_rate: 0.1848
+    - band: "E"
+      label: "Severe"
+      pd_upper: 1.0100
+      observed_default_rate: 0.3625
+
+# ----------------------------------------------------------------------------
+# Policy layer. Deterministic, asserted, not learned.
+#
+# severity: "knockout" | "high" | "medium" | "low"
+# band_penalty: how many bands the flag pushes the applicant down (worse).
+#   The policy layer may only ever RAISE severity. It never improves a band.
+# ----------------------------------------------------------------------------
+policy:
+  affordability:
+    foir_max: 0.55                      # plain FOIR ceiling
+    foir_severe: 0.75
+    expense_adjusted_foir_max: 0.80
+    min_surplus_inr: 0                  # negative surplus is a hard flag
+    min_residual_income_inr: 6000
+  credit_behaviour:
+    current_dpd_flag: 30
+    current_dpd_severe: 90
+    worst_dpd_24m_flag: 60
+    revolving_utilisation_flag_pct: 85
+    min_credit_vintage_months: 12
+    enquiries_12m_flag: 6
+    enquiries_3m_flag: 4
+  adverse_12m:
+    nach_bounce_flag_count: 2
+    nach_bounce_severe_count: 5
+    cheque_bounce_flag_count: 2
+  cash_flow:
+    min_salary_credits_6m: 4
+    bounced_debits_6m_flag: 2
+  # Facts that are categorically different from a high ratio. Shown apart
+  # from scored factors on the result screen and never averaged into the PD.
+  knockouts:
+    active_written_off_account: true
+    account_status_in: ["written-off", "loss", "doubtful"]
+    suit_filed_any: true
+    settlement_last_12m: true
+    current_dpd_at_or_above: 90
+  # Downgrade rule. Penalties are sub-additive on purpose: with only five
+  # bands, adding one step per flag sends anyone with three minor flags to
+  # the worst band, which destroys the resolution the bands exist to give.
+  # So: take the worst single flag, add one step if several flags of
+  # substance stack up, and cap the total.
+  band_penalty:
+    knockout: 99                        # forces the worst band
+    high: 2
+    medium: 1
+    low: 0
+    max_graded_downgrade: 2
+    stacking_extra_step: 1
+    stacking_threshold_count: 3         # how many medium-or-worse flags
+    stacking_threshold_severity: "medium"
+
+# ----------------------------------------------------------------------------
+# Thin file: no bureau history. PD from the model is not meaningful, so the
+# result screen switches to an income / cash-flow view and says so.
+# ----------------------------------------------------------------------------
+thin_file:
+  enabled: true
+  max_foir: 0.40
+  min_surplus_multiple_of_emi: 1.5
+  min_salary_credits_6m: 5
+
+# ----------------------------------------------------------------------------
+# Currency bridge (see README "Limitations").
+#
+# The model is trained on US consumer loans denominated in USD. Feeding INR
+# amounts into a USD-scaled feature is meaningless, and an FX rate is the
+# WRONG conversion: 60 USD/INR would make every Indian income look destitute
+# relative to the training distribution.
+#
+# Instead we anchor on income. inr_per_training_unit is the ratio of the
+# training data's median annual income to a median Indian salaried annual
+# income, so an applicant at the middle of the Indian distribution lands at
+# the middle of the training distribution. Amounts are scaled by the same
+# factor so that loan-to-income is preserved exactly.
+#
+# This is a crude affine transfer. It preserves RANK and RATIO, not level.
+# Recorded 2026-09-19.
+# ----------------------------------------------------------------------------
+currency_bridge:
+  inr_per_training_unit: 12.0
+  notes: "income-anchored, not FX. Preserves rank and loan-to-income ratio only."
+
+# ----------------------------------------------------------------------------
+# Population shift (intercept recalibration).
+#
+# A scorecard trained on one population and applied to another needs its
+# intercept re-fitted even when the coefficients transfer. Here the need is
+# unusually visible:
+#
+#   * term_60 fires for EVERY applicant — Indian education loans are
+#     essentially never under 36 months, where Lending Club's modal loan is
+#     36 months exactly. A feature with no variance in the target population
+#     contributes a constant, not information.
+#   * log_loan_amnt and loan_to_income clamp at the top of the training
+#     support for most applicants, for the same structural reason: an Indian
+#     education loan is large relative to income compared with a US personal
+#     loan.
+#
+# Left alone, those three add roughly +0.9 log-odds to every single
+# applicant, and the whole portfolio lands in the worst band. The fix is to
+# shift the intercept so a reference median applicant scores at the assumed
+# portfolio base rate, which is the standard minimum step when transferring
+# a scorecard across populations.
+#
+# This shift is applied to the log-odds BEFORE calibration. It is a constant,
+# so it cannot change the ranking of two applicants or break monotonicity.
+#
+# Re-derive after training with:  python notebooks/07_population_shift.py
+# Do NOT hand-tune it to make a demo profile look better.
+# ----------------------------------------------------------------------------
+calibration:
+  population_shift_log_odds: -1.76
+  # Isotonic regression returns a hard 0 for everything in its lowest bin,
+  # because the observed default rate in that bin was 0. That is an artefact
+  # of the fitting method, not a claim that default is impossible — and an
+  # app that displays "0.0% probability of default" is not credible to
+  # anyone who has priced credit. The floor and ceiling clamp the displayed
+  # PD to a range the calibration data can actually support.
+  #
+  # Set the floor to the observed default rate in the best band, not to an
+  # arbitrary small number: that is the lowest rate the data evidences.
+  pd_floor: 0.0297
+  pd_ceiling: 0.95
+  reference_base_rate: 0.09
+  source: "derived by notebooks/07_population_shift.py from a 34,992-point
+    reference grid against an assumed 9% portfolio base rate. The grid is an
+    assumption about the applicant population, not a measurement of it."
+
+# ----------------------------------------------------------------------------
+# Bureau score bridge. CIBIL is 300-900, FICO is 300-850. A linear rescale
+# is crude but monotone, which is all the model needs. The distributions are
+# NOT the same shape; this is flagged on the result screen.
+# ----------------------------------------------------------------------------
+bureau_bridge:
+  source_range: [300, 900]
+  target_range: [300, 850]
+  no_history_sentinel: null
+
+# ----------------------------------------------------------------------------
+# Reference + artefact paths, relative to repo root.
+# ----------------------------------------------------------------------------
+paths:
+  pincode_reference: "data/pincode_reference.sqlite"
+  demo_profiles: "data/demo_profiles.json"
+  model_artefact: "models/pd_model.joblib"
+  assessments_db: "data/assessments.sqlite"
+
+pincode:
+  default_tier_on_miss: "Tier 3"
+  miss_label: "assumed — pincode not in reference data"
+  tier_order: ["Metro", "Tier 1", "Tier 2", "Tier 3"]
