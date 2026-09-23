@@ -18,6 +18,7 @@ if str(REPO_ROOT) not in sys.path:
 
 import streamlit as st  # noqa: E402
 
+from app import components as ui  # noqa: E402
 from app.mapping import payload_to_forms  # noqa: E402
 from app.views import applicant as applicant_view  # noqa: E402
 from app.views import credit as credit_view  # noqa: E402
@@ -86,6 +87,7 @@ def main() -> None:
     demos = get_demo_profiles(str(resolve(cfg, "demo_profiles")))
 
     st.session_state.setdefault("step", "applicant")
+    ui.inject_styles()
 
     st.title("Loan Risk Assessment")
     st.caption(
@@ -107,7 +109,12 @@ def main() -> None:
     _sidebar(cfg, model, demos, store)
 
     step = st.session_state["step"]
-    _progress(step)
+    ui.step_tabs(STEPS, step)
+
+    # The band scale, shown before any band is assigned. A reader who sees
+    # "Band D · High" with no scale beside it has no way to judge whether
+    # that is unusual.
+    ui.band_strip(cfg, current=None)
 
     if step == "applicant":
         applicant_view.render(reference, cfg)
@@ -115,14 +122,6 @@ def main() -> None:
         credit_view.render(cfg)
     else:
         result_view.render(model, reference, cfg, store)
-
-
-def _progress(step: str) -> None:
-    labels = []
-    for key, label in STEPS.items():
-        labels.append(f"**{label}**" if key == step else f"<span style='color:#999'>{label}</span>")
-    st.markdown(" → ".join(labels), unsafe_allow_html=True)
-    st.divider()
 
 
 def _sidebar(cfg: dict, model: PDModel, demos: dict, store: AssessmentStore) -> None:

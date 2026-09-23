@@ -64,10 +64,13 @@ def _render_validation_errors(exc: Exception) -> None:
 
 
 def _render(result: Assessment, record, cfg: dict) -> None:
-    # 1 — band, prominent, with the historical default rate beside it
+    # 1 — band, prominent, with the historical default rate beside it,
+    #     and the full scale underneath with this band picked out
     ui.band_header(result.band, result.band_label,
                    result.band_observed_default_rate,
                    result.band_raised_by_policy, result.model_band)
+    st.write("")
+    ui.band_strip(cfg, current=result.band)
 
     # 2 — calibrated PD with an honest caveat
     st.write("")

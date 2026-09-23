@@ -1,6 +1,10 @@
 [theme]
-base = "light"
-primaryColor = "#1b4f72"
+base = "dark"
+primaryColor = "#4fd1c5"
+backgroundColor = "#0e1621"
+secondaryBackgroundColor = "#161f2c"
+textColor = "#e6edf3"
+font = "sans serif"
 
 [server]
 # The app reads a committed SQLite artefact and a committed model. It makes
